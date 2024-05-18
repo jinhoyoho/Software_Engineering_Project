@@ -1,0 +1,71 @@
+@import url("https://fonts.googleapis.com/css2?family=Medula+One&display=swap");
+
+.login-main {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: #f8e8dc;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  display: flex;
+  width: 800px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-text {
+  font-family: "Medula One";
+  font-size: 150px;
+}
+
+.login-orange {
+  color: #ff8b36;
+}
+
+.login-black {
+  color: #000;
+}
+
+.login-button {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.login-button-text {
+  font-family: "Medula One";
+  width: 326px;
+  height: 106px;
+  border-radius: 32px;
+  font-size: 59px;
+  text-align: center;
+  background: #ff8b36;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.ModalContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  z-index: 1000;
+}
