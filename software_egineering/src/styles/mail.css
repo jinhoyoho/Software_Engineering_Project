@@ -1,0 +1,61 @@
+.DM-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background: #f8e8dc;
+}
+
+.DM-display {
+  display: flex;
+  overflow: scroll;
+}
+
+.DM-content {
+  margin-left: 88px;
+  margin-right: 60px;
+  width: 566px;
+  height: 922px;
+}
+
+.DM-post,
+.DM-user {
+  font-family: "Noto Sans", sans-serif; /* 폰트 서체 */
+  font-size: 30px;
+  margin-top: 10px;
+  margin-left: 260px;
+  margin-bottom: 25px;
+}
+
+.DM-search {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.DM-search-text {
+  width: 480px;
+  height: 60px;
+  font-size: 25px;
+  background-color: #f8e8dc;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.DM-user-content {
+  width: 575px;
+  height: 73px;
+  font-size: 25px;
+  font-family: "Noto Sans", sans-serif;
+  border: 1px solid black;
+  margin-bottom: 20px;
+}
+
+.DM-button {
+  font-size: 35px;
+  cursor: pointer;
+  width: 250px;
+  height: 70px;
+  background-color: #ff8b36;
+  border: none;
+  border-radius: 20px;
+  margin-right: 20px;
+}

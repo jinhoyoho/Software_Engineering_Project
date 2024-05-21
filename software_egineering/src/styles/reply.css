@@ -1,0 +1,47 @@
+.reply-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background: #f8e8dc;
+}
+
+.reply-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: scroll;
+}
+
+.reply-post,
+.reply-user {
+  font-family: "Noto Sans", sans-serif; /* 폰트 서체 */
+  font-size: 30px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.reply-reply {
+  width: 500px;
+  height: 500px;
+  margin-bottom: 20px;
+  font-size: 25px;
+}
+
+.reply-button {
+  font-size: 35px;
+  cursor: pointer;
+  width: 250px;
+  height: 70px;
+  background-color: #ff8b36;
+  border: none;
+  border-radius: 20px;
+  margin-right: 20px;
+}
+
+.reply-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

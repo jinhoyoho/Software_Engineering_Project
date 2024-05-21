@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 
 import "../styles/signupmodal.css";
 
@@ -19,16 +18,37 @@ const PasswordModal = () => {
     setcheckPW(event.target.value);
   };
 
+  const handleSingUp = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch("http://localhost:5000/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        password_confirm: password_confirm,
+      }),
+    })
+      .then((response) => response.json()) // 응답 객체를 JSON 형식으로 파싱
+      .then((data) => {
+        alert(data.message);
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error); // 에러 처리
+      });
+  };
+
   return (
     <div className="sign-container">
       <div className="sign-box">
         <div className="sign-bold">회원 가입</div>
-        <form
-          className="sign-box"
-          action="http://localhost:5000/signup"
-          method="POST"
-          enctype="multipart/form-data"
-        >
+        <form className="sign-box" onSubmit={handleSingUp}>
           <div className="sign-input-container">
             <input
               className="sign-input_text"

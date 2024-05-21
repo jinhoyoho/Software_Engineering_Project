@@ -6,7 +6,6 @@ import React, { useState } from "react";
 
 export default function Upload() {
   const [uploadedMedia, setUploadedMedia] = useState(null);
-  const [mediaType, setMediaType] = useState("");
   const [inputKey, setInputKey] = useState(Date.now());
   const [hashtags, setHashtags] = useState([""]);
   const [text, setText] = useState(""); // 텍스트 입력 상태 추가
@@ -14,15 +13,12 @@ export default function Upload() {
   const onChangeMedia = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const fileType = file.type;
       setUploadedMedia(file);
-      setMediaType(fileType.startsWith("image/") ? "image" : "video");
     }
   };
 
   const onDeleteMedia = () => {
     setUploadedMedia(null);
-    setMediaType("");
     setInputKey(Date.now());
   };
 
@@ -62,86 +58,68 @@ export default function Upload() {
     validHashtags.forEach((tag, index) => {
       formData.append(`hashtags[${index}]`, tag);
     });
-
-    try {
-      const response = await fetch("YOUR_SERVER_ENDPOINT", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        console.log("업로드 성공!");
-        // 성공 처리 (예: 폼 초기화, 성공 메시지 표시 등)
-      } else {
-        console.error("서버 에러");
-        // 서버 에러 처리
-      }
-    } catch (error) {
-      console.error("업로드 실패", error);
-      // 네트워크 에러 처리
-    }
   };
 
   return (
     <div className="upload-container">
       <div className="upload-display">
-        <input
-          key={inputKey}
-          type="file"
-          accept="image/*,video/*"
-          onChange={onChangeMedia}
-          className="upload-picture"
-        />
-        {uploadedMedia && (
-          <div className="media-preview">
-            {mediaType === "image" ? (
+        <form
+          className="upload-display"
+          action="http://localhost:5000/upload"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input
+            key={inputKey}
+            type="file"
+            accept="image/*"
+            onChange={onChangeMedia}
+            className="upload-picture"
+          />
+          {uploadedMedia && (
+            <div className="media-preview">
               <img
                 src={URL.createObjectURL(uploadedMedia)}
                 alt="Preview"
                 className="media-preview-image"
               />
-            ) : (
-              <video
-                src={URL.createObjectURL(uploadedMedia)}
-                controls
-                className="media-preview-video"
+
+              <button onClick={onDeleteMedia} className="delete-button">
+                삭제
+              </button>
+            </div>
+          )}
+          {hashtags.map((hashtag, index) => (
+            <div key={index} className="hashtag-input-container">
+              <input
+                className="upload-hashtag"
+                placeholder="Hashtag"
+                type="text"
+                value={hashtag}
+                onChange={(e) => handleHashtagChange(index, e.target.value)}
               />
-            )}
-            <button onClick={onDeleteMedia} className="delete-button">
-              삭제
+            </div>
+          ))}
+          <div className="hashtag-buttons-container">
+            <button onClick={addHashtagField} className="hashtag-button">
+              추가
+            </button>
+            <button onClick={removeLastHashtagField} className="hashtag-button">
+              최근 삭제
             </button>
           </div>
-        )}
-        {hashtags.map((hashtag, index) => (
-          <div key={index} className="hashtag-input-container">
-            <input
-              className="upload-hashtag"
-              placeholder="hashtag"
-              type="text"
-              value={hashtag}
-              onChange={(e) => handleHashtagChange(index, e.target.value)}
-            />
-          </div>
-        ))}
-        <div className="hashtag-buttons-container">
-          <button onClick={addHashtagField} className="hashtag-button">
-            추가
+          <textarea
+            className="upload-text"
+            placeholder="설명을 적어주세요."
+            type="text"
+            value={text}
+            onChange={handleTextChange}
+          />
+          <button className="upload-button" onClick={handleUpload}>
+            업로드
           </button>
-          <button onClick={removeLastHashtagField} className="hashtag-button">
-            최근 삭제
-          </button>
-        </div>
-        <input
-          className="upload-text"
-          placeholder="text 설명"
-          type="text"
-          value={text}
-          onChange={handleTextChange}
-        />
-        <button className="upload-button" onClick={handleUpload}>
-          업로드
-        </button>
-        <Link to="/main">
+        </form>
+        <Link to="/main/:username">
           <button className="upload-button">취소</button>
         </Link>
       </div>
