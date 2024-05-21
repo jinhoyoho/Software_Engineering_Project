@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import "../styles/loginmodal.css";
 
 const LoginModal = () => {
-  const [id, setID] = useState("");
-  const [pw, setPW] = useState("");
+  const [username, setID] = useState("");
+  const [password, setPW] = useState("");
 
   const onChangeID = (event) => {
     setID(event.target.value);
@@ -23,7 +23,12 @@ const LoginModal = () => {
 
   return (
     <div className="id-container">
-      <div className="id-box">
+      <form
+        className="id-box"
+        action="http://localhost:5000/login"
+        method="POST"
+        enctype="multipart/form-data"
+      >
         <div className="id-bold">로그인</div>
 
         <div className="id-input-container">
@@ -31,10 +36,10 @@ const LoginModal = () => {
             className="id-input_text"
             type="text"
             placeholder="ID"
-            value={id}
+            value={username}
             onChange={onChangeID}
           />
-          {id && (
+          {username && (
             <button
               onClick={() => clearInput("id")}
               className="id-clear-button"
@@ -48,10 +53,10 @@ const LoginModal = () => {
             className="id-input_text"
             type="password"
             placeholder="PW"
-            value={pw}
+            value={password}
             onChange={onChangePW}
           />
-          {pw && (
+          {password && (
             <button
               onClick={() => clearInput("pw")}
               className="id-clear-button"
@@ -63,7 +68,7 @@ const LoginModal = () => {
         <div className="id-button-container">
           <button className="id-login-button">LOGIN</button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
