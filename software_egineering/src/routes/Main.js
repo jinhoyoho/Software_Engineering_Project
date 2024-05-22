@@ -15,6 +15,44 @@ export default function Main() {
     setSearch(event.target.value);
   };
 
+  const [userlist, setUserList] = useState("");
+
+  // UserList 핸들링
+  const handleUserList = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/userlists", {
+        method: "GET",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        setUserList(data["username"]);
+
+        // setUserList(data[i로 반복문 돌려야함]["username"]);
+      } else {
+        console.error("Failed to fetch user:", response.statusText);
+      }
+    } catch (error) {
+      console.error("UserList Error:", error);
+    }
+  };
+
+  // const handleSessionInfo = async () => {
+  //   try {
+  //     const response = await fetch("http://localhost:5000/session_info", {
+  //       method: "GET",
+  //     });
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log("Session info:", data.session_info);
+  //     } else {
+  //       console.error("Failed to fetch session info:", response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
+
   // 사용자 이름을 받음
   useEffect(() => {
     const handleUser = async () => {
@@ -22,50 +60,22 @@ export default function Main() {
         const response = await fetch("http://localhost:5000/user", {
           method: "GET",
         });
-        const data = await response.json();
-        // username을 상태에 저장하거나 다른 로직을 실행
-        setUsername(data.username);
+        if (response.ok) {
+          const data = await response.json();
+          // username을 상태에 저장하거나 다른 로직을 실행
+          setUsername(data.username);
+        } else {
+          console.error("Failed to fetch user:", response.statusText);
+        }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("USER Error:", error);
       }
     };
 
+    // handleSessionInfo(); // 세션 정보 출력
     handleUser();
+    handleUserList();
   }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때만 실행되도록 함
-
-  // 업로드 핸들링
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    const response = await fetch("http://localhost:5000/go_upload", {
-      method: "POST",
-    })
-      .then((response) => response.json()) // 응답 객체를 JSON 형식으로 파싱
-      .then((data) => {
-        if (data.redirect_url) {
-          window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error); // 에러 처리
-      });
-  };
-
-  // dm 핸들링
-  const handleDM = async (e) => {
-    e.preventDefault();
-    const response = await fetch("http://localhost:5000/go_dm", {
-      method: "POST",
-    })
-      .then((response) => response.json()) // 응답 객체를 JSON 형식으로 파싱
-      .then((data) => {
-        if (data.redirect_url) {
-          window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error); // 에러 처리
-      });
-  };
 
   // 로그아웃
   const handleLogout = async (e) => {
@@ -99,7 +109,7 @@ export default function Main() {
         alert(data.message);
       })
       .catch((error) => {
-        console.error("Error:", error); // 에러 처리
+        console.error("Keyword Error:", error); // 에러 처리
       });
   };
 
@@ -113,14 +123,14 @@ export default function Main() {
         <div className="main-right-bar">
           <div className="main-username">{username}</div>
 
-          <form onSubmit={handleUpload} className="button-style">
+          <Link to="/upload" className="button-style">
             <button className="main-upload">Upload</button>
-          </form>
+          </Link>
 
           {/* 해당하는 user의 mail함으로 들어감 */}
-          <form onSubmit={handleDM} className="button-style">
+          <Link to="/DirectMessage" className="button-style">
             <button className="main-DM">Direct Message</button>
-          </form>
+          </Link>
 
           <form onSubmit={handleLogout} className="button-style">
             <button className="main-Logout">Logout</button>
@@ -151,9 +161,7 @@ export default function Main() {
 
         <div className="main-content">
           <div className="main-user">User List</div>
-          {/* User List를 받아서 대입 */}
-          <div className="main-user-content">User가 들어갈 항목입니다.</div>
-          <div className="main-user-content">User가 들어갈 항목입니다.</div>
+          <div className="main-user-List">{userlist}</div>;
         </div>
       </div>
     </div>

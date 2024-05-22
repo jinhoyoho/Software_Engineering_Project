@@ -67,7 +67,7 @@ export default function Upload() {
           className="upload-display"
           action="http://localhost:5000/upload"
           method="POST"
-          enctype="multipart/form-data"
+          encType="multipart/form-data"
         >
           <input
             key={inputKey}
@@ -119,8 +119,9 @@ export default function Upload() {
             업로드
           </button>
         </form>
-        <Link to="/main/:username">
-          <button className="upload-button">취소</button>
+
+        <Link to="/main">
+          <button className="DM-button">메인으로</button>
         </Link>
       </div>
     </div>
