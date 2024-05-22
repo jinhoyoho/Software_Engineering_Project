@@ -40,7 +40,9 @@ export default function Upload() {
     setText(e.target.value);
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (e) => {
+    e.preventDefault();
+
     // 해시태그 배열에서 빈 문자열을 제거한 후 유효한 해시태그만 남깁니다.
     const validHashtags = hashtags.filter((tag) => tag.trim() !== "");
 
@@ -53,22 +55,37 @@ export default function Upload() {
     }
 
     const formData = new FormData();
-    formData.append("media", uploadedMedia);
+    formData.append("file", uploadedMedia);
     formData.append("text", text);
     validHashtags.forEach((tag, index) => {
       formData.append(`hashtags[${index}]`, tag);
     });
+
+    // for (let pair of formData.entries()) {
+    //   console.log(`${pair[0]}: ${pair[1]}`);
+    // }
+
+    const response = await fetch("http://localhost:5000/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json()) // 응답 객체를 JSON 형식으로 파싱
+      .then((data) => {
+        alert(data.message);
+
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error); // 에러 처리
+      });
   };
 
   return (
     <div className="upload-container">
       <div className="upload-display">
-        <form
-          className="upload-display"
-          action="http://localhost:5000/upload"
-          method="POST"
-          encType="multipart/form-data"
-        >
+        <form className="upload-display" onSubmit={handleUpload}>
           <input
             key={inputKey}
             type="file"
@@ -77,7 +94,7 @@ export default function Upload() {
             className="upload-picture"
           />
           {uploadedMedia && (
-            <div className="media-preview">
+            <div>
               <img
                 src={URL.createObjectURL(uploadedMedia)}
                 alt="Preview"
@@ -89,6 +106,7 @@ export default function Upload() {
               </button>
             </div>
           )}
+
           {hashtags.map((hashtag, index) => (
             <div key={index} className="hashtag-input-container">
               <input
@@ -100,6 +118,7 @@ export default function Upload() {
               />
             </div>
           ))}
+
           <div className="hashtag-buttons-container">
             <button onClick={addHashtagField} className="hashtag-button">
               추가
@@ -115,13 +134,11 @@ export default function Upload() {
             value={text}
             onChange={handleTextChange}
           />
-          <button className="upload-button" onClick={handleUpload}>
-            업로드
-          </button>
+          <button className="upload-button">업로드</button>
         </form>
 
         <Link to="/main">
-          <button className="DM-button">메인으로</button>
+          <button className="upload-button">메인으로</button>
         </Link>
       </div>
     </div>

@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
 import Login from "./routes/Login";
 import Main from "./routes/Main";
 import Upload from "./routes/Upload";
@@ -11,23 +10,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />}></Route>
-      </Routes>
-      <Routes>
-        <Route path="/main" element={<Main />}></Route>
-      </Routes>
-      <Routes>
-        <Route path="/upload" element={<Upload />}></Route>
-      </Routes>
-      <Routes>
-        <Route path="/DirectMessage" element={<Mail />}></Route>
-      </Routes>
-      <Routes>
-        <Route path="/guest" element={<Guest />}></Route>
-      </Routes>
-
-      <Routes>
-        <Route path="/reply" element={<Reply />}></Route>
+        <Route path="/" element={<Login />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/upload" element={<Upload />} />
+        <Route path="/DirectMessage" element={<Mail />} />
+        <Route path="/guest" element={<Guest />} />
+        <Route path="/reply" element={<Reply />} />
       </Routes>
     </Router>
   );

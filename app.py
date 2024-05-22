@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, redirect, url_for, render_template
+from flask_session import Session
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -8,8 +9,13 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = 'software_engineering'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 # CORS 설정에서 credentials 허용
 CORS(app)
+
+
+session_list = dict()
 
 
 # MongoDB 설정
@@ -20,11 +26,9 @@ users = db['users']
 posts = db['posts']
 dms = db['dms']
 
-session_list = dict()   # 딕셔너리 형태로 저장
-
 
 # 파일 업로드 설정
-UPLOAD_FOLDER = '/path/to/upload/directory'
+UPLOAD_FOLDER = './upload'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -80,10 +84,12 @@ def login():
     if not user or not check_password_hash(user['password'], password):
         return jsonify({'message': 'ID 혹은 비밀번호가 틀렸습니다.'}), 400
 
-    # session_list['user_type'] = 'user'  # 로그인 유형을 세션에 저장
+    # session['user_type'] = 'user'  # 로그인 유형을 세션에 저장
     session_list['username'] = username  # 아이디 저장
 
-    return jsonify({'message': f"{username}님, 환영합니다!", 'redirect_url': 'http://localhost:3000/main'}), 200
+    # 로그인 성공 시 세션 정보와 함께 응답
+    return jsonify({'message': f"{username}님, 환영합니다!",
+                    'redirect_url': 'http://localhost:3000/main'}), 200
 
 
 # 게스트 로그인 -> 완료
@@ -118,7 +124,7 @@ def get_user():
     return jsonify({'message': 'User not logged in'}), 200
 
 
-# 유저 리스트 조회
+# 유저 리스트 조회 -> 완료
 @app.route('/userlists', methods=['GET'])
 def get_users():
     user_list = users.find({}, {'_id': 0, 'password': 0})  # password는 반환하지 않음
@@ -139,40 +145,51 @@ def get_user_posts(username):
     return jsonify(list(post_list)), 200
 
 
+# 사진, hashtag, text 업로드
 @ app.route('/upload', methods=['POST'])
 def upload_file():
     # if session_list.get('user_type') == 'guest':
     #     return jsonify({'message': 'Access denied'}), 403
 
     if 'file' not in request.files:
-        return jsonify({'message': 'No file part'}), 400
+        return jsonify({'message': '파일이 올바르지 않습니다.'}), 400
 
     file = request.files['file']
 
     if file.filename == '':
-        return jsonify({'message': 'No selected file'}), 400
+        return jsonify({'message': '파일이 선택되지 않았습니다.'}), 400
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        description = request.form.get('description')
-        keywords = request.form.get('keywords')
+        # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        if len(keywords) >= 10:
-            return jsonify({'message': 'Keyword must be less than 10 characters'}), 400
-        posts.insert_one({
+        file_content = file.read()
+        text = request.form.get('text')
+        hashtags = [value for key, value in request.form.items()
+                    if 'hashtags[' in key]
+
+        # 파일을 MongoDB에 저장
+        image_data = {
+            'username': session_list['username'],
             'filename': filename,
-            'description': description,
-            'keywords': keywords
-        })
-        return jsonify({'message': 'File successfully uploaded'}), 200
+            'content': file_content,
+            'text': text,
+            'hashtags': hashtags
+        }
 
-    else:
-        return jsonify({'message': 'Allowed file types are png, jpg, jpeg, gif'}), 400
+        posts.insert_one(image_data)
+
+        return jsonify({'message': '게시글이 작성되었습니다!',
+                        "redirect_url": "http://localhost:3000/main"}), 200
+
+    # if len(keywords) >= 10:
+    #     return jsonify({'message': 'Keyword must be less than 10 characters'}), 400
+
+    # else:
+    #     return jsonify({'message': 'Allowed file types are png, jpg, jpeg, gif'}), 400
+
 
 # 내가 업로드한 사진 조회
-
-
 @ app.route('/my_posts/<username>', methods=['GET'])
 def get_my_posts(username):
     # if session_list.get('user_type') == 'guest':

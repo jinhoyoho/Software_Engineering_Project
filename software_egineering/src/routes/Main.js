@@ -15,7 +15,7 @@ export default function Main() {
     setSearch(event.target.value);
   };
 
-  const [userlist, setUserList] = useState("");
+  const [userlist, setUserList] = useState([]);
 
   // UserList 핸들링
   const handleUserList = async () => {
@@ -26,9 +26,7 @@ export default function Main() {
       if (response.ok) {
         const data = await response.json();
         console.log(data);
-        setUserList(data["username"]);
-
-        // setUserList(data[i로 반복문 돌려야함]["username"]);
+        setUserList(data); // 서버로부터 data를 받아옴
       } else {
         console.error("Failed to fetch user:", response.statusText);
       }
@@ -37,21 +35,21 @@ export default function Main() {
     }
   };
 
-  // const handleSessionInfo = async () => {
-  //   try {
-  //     const response = await fetch("http://localhost:5000/session_info", {
-  //       method: "GET",
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       console.log("Session info:", data.session_info);
-  //     } else {
-  //       console.error("Failed to fetch session info:", response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
+  const handleSessionInfo = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/session_info", {
+        method: "GET",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Session info:", data.session_info.username);
+      } else {
+        console.error("Failed to fetch session info:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   // 사용자 이름을 받음
   useEffect(() => {
@@ -72,7 +70,7 @@ export default function Main() {
       }
     };
 
-    // handleSessionInfo(); // 세션 정보 출력
+    handleSessionInfo(); // 세션 정보 출력
     handleUser();
     handleUserList();
   }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때만 실행되도록 함
@@ -160,8 +158,12 @@ export default function Main() {
         </div>
 
         <div className="main-content">
-          <div className="main-user">User List</div>
-          <div className="main-user-List">{userlist}</div>;
+          <div className="main-userlist-container">
+            <div className="main-user">User List</div>
+            {userlist.map((user, index) => (
+              <div className="main-userlist">{user.username}</div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
