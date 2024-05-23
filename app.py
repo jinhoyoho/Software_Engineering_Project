@@ -5,18 +5,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 from flask_cors import CORS
+from bson.json_util import dumps
+import datetime
 
 
 app = Flask(__name__)
 app.secret_key = 'software_engineering'
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
 # CORS 설정에서 credentials 허용
 CORS(app)
 
-
 session_list = dict()
-
 
 # MongoDB 설정
 client = MongoClient(
@@ -28,7 +26,7 @@ dms = db['dms']
 
 
 # 파일 업로드 설정
-UPLOAD_FOLDER = './upload'
+UPLOAD_FOLDER = './static/images/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -128,24 +126,26 @@ def get_user():
 @app.route('/userlists', methods=['GET'])
 def get_users():
     user_list = users.find({}, {'_id': 0, 'password': 0})  # password는 반환하지 않음
-    return jsonify(list(user_list)), 200
+    return jsonify({'userlist': list(user_list)}), 200
 
 
-# 사진 리스트 조회
-@app.route('/userlists/<username>/postlists', methods=['GET'])
-def get_user_posts(username):
+# 사진 리스트 조회 -> 완료
+@app.route('/postlists', methods=['GET'])
+def postlists():
     # if session_list.get('user_type') == 'guest':
     #     return jsonify({'message': 'Access denied'}), 403
 
-    user = users.find_one({'username': username})
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
+    # user = users.find_one({'username'})
+    # if not user:
+    #     return jsonify({'message': 'User not found'}), 404
 
-    post_list = posts.find({'username': username}, {'_id': 0})
-    return jsonify(list(post_list)), 200
+    post_list = posts.find({}, {'_id': 0})
+    post_list = list(post_list)
+
+    return dumps({"postlist": post_list, "message": "complete message"}), 200
 
 
-# 사진, hashtag, text 업로드
+# 사진, hashtag, text 업로드 -> 완료
 @ app.route('/upload', methods=['POST'])
 def upload_file():
     # if session_list.get('user_type') == 'guest':
@@ -160,10 +160,18 @@ def upload_file():
         return jsonify({'message': '파일이 선택되지 않았습니다.'}), 400
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        extension = file.filename.split('.')[-1]
 
-        file_content = file.read()
+        # static 폴더에 저장될 파일 이름 생성하기
+        today = datetime.datetime.now()
+        mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
+        filename = f'file-{mytime}'
+        # 확장자 나누기
+        extension = file.filename.split('.')[-1]
+        # static 폴더에 저장
+        save_to = f'static/{filename}.{extension}'
+        file.save(save_to)
+
         text = request.form.get('text')
         hashtags = [value for key, value in request.form.items()
                     if 'hashtags[' in key]
@@ -171,8 +179,7 @@ def upload_file():
         # 파일을 MongoDB에 저장
         image_data = {
             'username': session_list['username'],
-            'filename': filename,
-            'content': file_content,
+            'file': f'{filename}.{extension}',
             'text': text,
             'hashtags': hashtags
         }
@@ -197,9 +204,8 @@ def get_my_posts(username):
     my_posts = posts.find({'username': username}, {'_id': 0})
     return jsonify(list(my_posts)), 200
 
+
 # 내가 업로드한 사진 수정
-
-
 @ app.route('/my_posts/<username>/<filename>', methods=['PUT'])
 def update_my_post(username, filename):
     # if session_list.get('user_type') == 'guest':
@@ -216,9 +222,8 @@ def update_my_post(username, filename):
     else:
         return jsonify({'message': 'Invalid file'}), 400
 
+
 # 키워드 검색
-
-
 @ app.route('/search', methods=['POST'])
 def search_posts():
     data = request.get_json()  # 요청의 JSON 바디에서 데이터 추출
@@ -249,8 +254,6 @@ def send_dm():
 
 
 # dm 조회
-
-
 @ app.route('/dm/<username>', methods=['GET'])
 def get_dms(username):
     # if session_list.get('user_type') == 'guest':
@@ -258,9 +261,8 @@ def get_dms(username):
     user_dms = dms.find({'receiver': username}, {'_id': 0})
     return jsonify(list(user_dms)), 200
 
+
 # dm 답장
-
-
 @ app.route('/dm/<username>/<dm_id>', methods=['PUT'])
 def reply_dm(username, dm_id):
     # if session_list.get('user_type') == 'guest':
@@ -270,9 +272,8 @@ def reply_dm(username, dm_id):
                    {'$set': {'reply': reply}})
     return jsonify({'message': 'DM successfully replied'}), 200
 
+
 # dm 삭제
-
-
 @ app.route('/dm/<username>/<dm_id>', methods=['DELETE'])
 def delete_dm(username, dm_id):
     # if session_list.get('user_type') == 'guest':

@@ -101,7 +101,11 @@ export default function Upload() {
                 className="media-preview-image"
               />
 
-              <button onClick={onDeleteMedia} className="delete-button">
+              <button
+                type="button"
+                onClick={onDeleteMedia}
+                className="delete-button"
+              >
                 삭제
               </button>
             </div>
@@ -120,11 +124,19 @@ export default function Upload() {
           ))}
 
           <div className="hashtag-buttons-container">
-            <button onClick={addHashtagField} className="hashtag-button">
+            <button
+              type="button"
+              onClick={addHashtagField}
+              className="hashtag-button"
+            >
               추가
             </button>
-            <button onClick={removeLastHashtagField} className="hashtag-button">
-              최근 삭제
+            <button
+              type="button"
+              onClick={removeLastHashtagField}
+              className="hashtag-button"
+            >
+              마지막 hashtag 삭제
             </button>
           </div>
           <textarea

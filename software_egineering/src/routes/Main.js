@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import "../styles/main.css";
 
 import search_icon from "../icons/search_icon.png";
-
-import Board from "../component/Board";
+import option_icon from "../icons/option_icon.png";
 
 export default function Main() {
   const [keyword, setSearch] = useState("");
@@ -24,9 +23,9 @@ export default function Main() {
         method: "GET",
       });
       if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setUserList(data); // 서버로부터 data를 받아옴
+        const user_data = await response.json();
+        // console.log(data.userlist);
+        setUserList(user_data.userlist); // 서버로부터 data를 받아옴
       } else {
         console.error("Failed to fetch user:", response.statusText);
       }
@@ -35,19 +34,38 @@ export default function Main() {
     }
   };
 
-  const handleSessionInfo = async () => {
+  // const handleSessionInfo = async () => {
+  //   try {
+  //     const response = await fetch("http://localhost:5000/session_info", {
+  //       method: "GET",
+  //     });
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log("Session info:", data.session_info.username);
+  //     } else {
+  //       console.error("Failed to fetch session info:", response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
+
+  const [postuser, setPostUser] = useState([]);
+
+  // PostList 핸들링
+  const handlePostList = async () => {
     try {
-      const response = await fetch("http://localhost:5000/session_info", {
+      const response = await fetch("http://localhost:5000/postlists", {
         method: "GET",
       });
       if (response.ok) {
-        const data = await response.json();
-        console.log("Session info:", data.session_info.username);
+        const post_data = await response.json();
+        setPostUser(post_data.postlist); // 서버로부터 data를 받아옴
       } else {
-        console.error("Failed to fetch session info:", response.statusText);
+        console.error("Failed to fetch post:", response.statusText);
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("PostList Error:", error);
     }
   };
 
@@ -59,9 +77,9 @@ export default function Main() {
           method: "GET",
         });
         if (response.ok) {
-          const data = await response.json();
+          const username_data = await response.json();
           // username을 상태에 저장하거나 다른 로직을 실행
-          setUsername(data.username);
+          setUsername(username_data.username);
         } else {
           console.error("Failed to fetch user:", response.statusText);
         }
@@ -70,9 +88,10 @@ export default function Main() {
       }
     };
 
-    handleSessionInfo(); // 세션 정보 출력
-    handleUser();
-    handleUserList();
+    // handleSessionInfo(); // 세션 정보 출력
+    handleUser(); // 로그인 된 user가 누구인지
+    handleUserList(); // user list
+    handlePostList(); //  게시글 list
   }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때만 실행되도록 함
 
   // 로그아웃
@@ -83,11 +102,11 @@ export default function Main() {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      alert(data.message);
+      const logout_data = await response.json();
+      alert(logout_data.message);
 
-      if (data.redirect_url) {
-        window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
+      if (logout_data.redirect_url) {
+        window.location.href = logout_data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
       }
     }
   };
@@ -154,7 +173,33 @@ export default function Main() {
               </button>
             </form>
           </div>
-          <Board></Board>
+          {postuser.map((post, index) => (
+            <>
+              <div className="main-board-container">
+                <div className="main-board-bar">
+                  <div className="main-user-name">{post.username}</div>
+
+                  <button className="main-option-button">
+                    <img src={option_icon} className="main-option-icon" />
+                  </button>
+                </div>
+                <img
+                  src={`../static/${post.file}`}
+                  className="main-board-picture"
+                />
+                <div className="main-board-hashtag">
+                  {post.hashtags.map((hashtag, index) => (
+                    <>
+                      <span className="main-board-hashtag-content">
+                        {hashtag} &nbsp;
+                      </span>
+                    </>
+                  ))}
+                </div>
+                <div className="main-board-text">{post.text}</div>
+              </div>
+            </>
+          ))}
         </div>
 
         <div className="main-content">
