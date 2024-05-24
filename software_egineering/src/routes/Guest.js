@@ -1,13 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import "../styles/guest.css";
 
 export default function Guest() {
-  const [search, setSearch] = useState("");
+  const [userlist, setUserList] = useState([]);
 
-  const onChangeSearch = (event) => {
-    setSearch(event.target.value);
+  // UserList 핸들링
+  const handleUserList = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/userlists", {
+        method: "GET",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserList(data.userlist); // 서버로부터 data를 받아옴
+      } else {
+        console.error("Failed to fetch user:", response.statusText);
+      }
+    } catch (error) {
+      console.error("UserList Error:", error);
+    }
   };
+
+  // 사용자 이름을 받음
+  useEffect(() => {
+    handleUserList(); // user list
+  }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때만 실행되도록 함
 
   // 로그아웃
   const handleLogout = async (e) => {
@@ -49,10 +67,12 @@ export default function Guest() {
         </div>
 
         <div className="main-content">
-          <div className="main-user">User List</div>
-          {/* User List를 받아서 대입 */}
-          <div className="main-user-content">User가 들어갈 항목입니다.</div>
-          <div className="main-user-content">User가 들어갈 항목입니다.</div>
+          <div className="main-userlist-container">
+            <div className="main-user">User List</div>
+            {userlist.map((user, index) => (
+              <div className="main-userlist">{user.username}</div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

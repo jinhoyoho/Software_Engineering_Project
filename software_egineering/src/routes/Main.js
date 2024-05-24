@@ -36,8 +36,8 @@ export default function Main() {
         method: "GET",
       });
       if (response.ok) {
-        const user_data = await response.json();
-        setUserList(user_data.userlist); // 서버로부터 data를 받아옴
+        const data = await response.json();
+        setUserList(data.userlist); // 서버로부터 data를 받아옴
       } else {
         console.error("Failed to fetch user:", response.statusText);
       }
@@ -53,8 +53,12 @@ export default function Main() {
         method: "GET",
       });
       if (response.ok) {
-        const post_data = await response.json();
-        setPostuser(post_data.postlist); // 서버로부터 data를 받아옴
+        const data = await response.json();
+        if (data.redirect_url) {
+          console.log(data.message);
+          // window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
+        }
+        setPostuser(data.postlist); // 서버로부터 data를 받아옴
       } else {
         console.error("Failed to fetch post:", response.statusText);
       }
@@ -71,9 +75,9 @@ export default function Main() {
           method: "GET",
         });
         if (response.ok) {
-          const username_data = await response.json();
+          const data = await response.json();
           // username을 상태에 저장하거나 다른 로직을 실행
-          setUsername(username_data.username);
+          setUsername(data.username);
         } else {
           console.error("Failed to fetch user:", response.statusText);
         }
@@ -82,7 +86,6 @@ export default function Main() {
       }
     };
 
-    // handleSessionInfo(); // 세션 정보 출력
     handleUser(); // 로그인 된 user가 누구인지
     handleUserList(); // user list
     handlePostList(); //  게시글 list
@@ -96,11 +99,11 @@ export default function Main() {
     });
 
     if (response.ok) {
-      const logout_data = await response.json();
-      alert(logout_data.message);
+      const data = await response.json();
+      alert(data.message);
 
-      if (logout_data.redirect_url) {
-        window.location.href = logout_data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
       }
     }
   };

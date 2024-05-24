@@ -61,10 +61,6 @@ export default function Upload() {
       formData.append(`hashtags[${index}]`, tag);
     });
 
-    // for (let pair of formData.entries()) {
-    //   console.log(`${pair[0]}: ${pair[1]}`);
-    // }
-
     const response = await fetch("http://localhost:5000/upload", {
       method: "POST",
       body: formData,
