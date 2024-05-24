@@ -37,7 +37,6 @@ export default function Main() {
       });
       if (response.ok) {
         const user_data = await response.json();
-        // console.log(data.userlist);
         setUserList(user_data.userlist); // 서버로부터 data를 받아옴
       } else {
         console.error("Failed to fetch user:", response.statusText);

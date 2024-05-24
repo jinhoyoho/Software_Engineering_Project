@@ -17,7 +17,7 @@ function App() {
         <Route path="/upload" element={<Upload />} />
         <Route path="/DirectMessage" element={<Mail />} />
         <Route path="/guest" element={<Guest />} />
-        <Route path="/reply" element={<Reply />} />
+        <Route path="/sendDM" element={<Reply />} />
         <Route path="/fix" element={<Fix />} />
         <Route path="/keyword" element={<Keyword />} />
       </Routes>
