@@ -6,9 +6,22 @@ import "../styles/main.css";
 import search_icon from "../icons/search_icon.png";
 import option_icon from "../icons/option_icon.png";
 
+import OptionModal from "../component/OptionModal";
+
 export default function Main() {
   const [keyword, setSearch] = useState("");
   const [username, setUsername] = useState("");
+
+  const [postuser, setPostuser] = useState([]); // 포스트 데이터 상태
+  const [showOption, setShowOption] = useState({}); // 각 포스트별 showOption 상태 관리를 위한 객체
+
+  // 버튼 클릭 시 메뉴 표시 상태를 토글하는 함수
+  const toggleOption = (index) => {
+    setShowOption((prevState) => ({
+      ...prevState,
+      [index]: !prevState[index],
+    }));
+  };
 
   const onChangeSearch = (event) => {
     setSearch(event.target.value);
@@ -34,24 +47,6 @@ export default function Main() {
     }
   };
 
-  // const handleSessionInfo = async () => {
-  //   try {
-  //     const response = await fetch("http://localhost:5000/session_info", {
-  //       method: "GET",
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       console.log("Session info:", data.session_info.username);
-  //     } else {
-  //       console.error("Failed to fetch session info:", response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
-  const [postuser, setPostUser] = useState([]);
-
   // PostList 핸들링
   const handlePostList = async () => {
     try {
@@ -60,7 +55,7 @@ export default function Main() {
       });
       if (response.ok) {
         const post_data = await response.json();
-        setPostUser(post_data.postlist); // 서버로부터 data를 받아옴
+        setPostuser(post_data.postlist); // 서버로부터 data를 받아옴
       } else {
         console.error("Failed to fetch post:", response.statusText);
       }
@@ -111,10 +106,11 @@ export default function Main() {
     }
   };
 
-  // 키워드 핸들링
+  // 검색 페이지로 이동
   const handleKeyword = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/search", {
+
+    const response = await fetch("http://localhost:5000/gotokeywordpage", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -124,9 +120,13 @@ export default function Main() {
       .then((response) => response.json()) // 응답 객체를 JSON 형식으로 파싱
       .then((data) => {
         alert(data.message);
+
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url; // 클라이언트 사이드에서 리디렉션 처리
+        }
       })
       .catch((error) => {
-        console.error("Keyword Error:", error); // 에러 처리
+        console.error("Error:", error); // 에러 처리
       });
   };
 
@@ -174,31 +174,50 @@ export default function Main() {
             </form>
           </div>
           {postuser.map((post, index) => (
-            <>
+            <React.Fragment key={index}>
               <div className="main-board-container">
                 <div className="main-board-bar">
                   <div className="main-user-name">{post.username}</div>
 
-                  <button className="main-option-button">
-                    <img src={option_icon} className="main-option-icon" />
-                  </button>
+                  <div className="main-option-button-container">
+                    <button
+                      className="main-option-button"
+                      onClick={() => toggleOption(index)}
+                    >
+                      <img
+                        src={option_icon}
+                        className="main-option-icon"
+                        alt="option"
+                      />
+                    </button>
+                  </div>
                 </div>
                 <img
                   src={`../static/${post.file}`}
                   className="main-board-picture"
+                  alt="post"
                 />
                 <div className="main-board-hashtag">
-                  {post.hashtags.map((hashtag, index) => (
-                    <>
-                      <span className="main-board-hashtag-content">
-                        {hashtag} &nbsp;
-                      </span>
-                    </>
+                  {post.hashtags.map((hashtag, hashtagIndex) => (
+                    <span
+                      key={hashtagIndex}
+                      className="main-board-hashtag-content"
+                    >
+                      {hashtag} &nbsp;
+                    </span>
                   ))}
                 </div>
                 <div className="main-board-text">{post.text}</div>
               </div>
-            </>
+              {showOption[index] && (
+                <div
+                  className="main-option-select"
+                  onClick={() => toggleOption(index)}
+                >
+                  <OptionModal name={post.username} file={post.file} />
+                </div>
+              )}
+            </React.Fragment>
           ))}
         </div>
 

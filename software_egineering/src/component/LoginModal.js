@@ -109,6 +109,7 @@ const LoginModal = () => {
             </button>
           </div>
         </form>
+
         <form onSubmit={handleGuestLogin} className="id-form">
           <div className="id-button-container">
             <button type="submit" className="id-login-button">

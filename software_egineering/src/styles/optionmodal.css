@@ -1,0 +1,55 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap"); /* Noto Sans font 가져옴 */
+
+.option-container {
+  width: 328px;
+  position: relative;
+  z-index: 100;
+}
+
+.option-box {
+  display: flex;
+  width: 328px;
+  left: -1px;
+  top: -1px;
+  border-radius: 12px;
+  background: #f8e8dc;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.option-bold {
+  margin-top: 20px;
+  font-family: "Noto Sans", sans-serif; /* 폰트 서체 */
+  font-weight: 700;
+  font-size: 23.5px;
+}
+
+.option-button-container {
+  width: 280px;
+  height: 48px;
+  left: 24px;
+  top: 172px;
+}
+
+.option-button {
+  width: 280px;
+  height: 48px;
+  background: #ff8b36;
+  border-radius: 4px;
+  font-family: "Noto Sans", sans-serif; /* 폰트 서체 */
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
