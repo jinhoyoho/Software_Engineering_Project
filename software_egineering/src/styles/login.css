@@ -7,6 +7,7 @@
   background: #f8e8dc;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .login-container {

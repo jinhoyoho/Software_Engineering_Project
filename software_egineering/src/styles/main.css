@@ -7,6 +7,7 @@
   width: 100vw;
   height: 100vh;
   background: #f8e8dc;
+  overflow: hidden;
 }
 
 .main-bar {
@@ -99,21 +100,24 @@
 
 .main-display {
   display: flex;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 .main-content {
-  margin-left: 88px;
-  margin-right: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   width: 566px;
   height: 922px;
 }
 
 .main-post,
 .main-user {
+  width: 400px;
+  height: 50px;
   font-family: "Noto Sans", sans-serif; /* 폰트 서체 */
   font-size: 30px;
-  text-align: center;
 }
 
 .main-search {

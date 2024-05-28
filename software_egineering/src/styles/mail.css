@@ -4,6 +4,7 @@
   width: 100vw;
   height: 100vh;
   background: #f8e8dc;
+  overflow: hidden;
 }
 
 .DM-display {
