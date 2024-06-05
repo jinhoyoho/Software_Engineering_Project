@@ -1,8 +1,6 @@
-from flask import Flask, request, jsonify, redirect, url_for, render_template
-from flask_session import Session
+from flask import Flask, request, jsonify, redirect
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
 import os
 from flask_cors import CORS
 from bson.json_util import dumps
@@ -102,14 +100,7 @@ def guest_login():
 @app.route('/logout', methods=['GET'])
 def logout():
     session_list.pop('username', None)
-    session_list.pop('user_type', None)
-    return jsonify({'message': "안전하게 로그아웃 되었습니다.", 'redirect_url': "http://localhost:3000/"})
-
-
-# 세션 정보 확인 -> 디버깅용
-@app.route('/session_info', methods=['GET'])
-def session_info():
-    return jsonify({'session_info': session_list}), 200
+    return jsonify({'message': "메인 화면으로 돌아갑니다.", 'redirect_url': "http://localhost:3000/"})
 
 
 # 아이디 로그인한 사람 조회 -> 완료
@@ -133,24 +124,24 @@ def get_users():
 # 사진 리스트 조회 -> 완료
 @app.route('/postlists', methods=['GET'])
 def postlists():
-    # if session_list.get('user_type') == 'guest':
-    #     return jsonify({'message': 'Access denied'}), 403
-
-    # user = users.find_one({'username'})
-    # if not user:
-    #     return jsonify({'message': 'User not found'}), 404
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "postlist": list(),
+                        "redirect_url": "http://localhost:3000"})
 
     post_list = posts.find({}, {'_id': 0})
     post_list = list(post_list)
 
-    return dumps({"postlist": post_list, "message": "complete message"}), 200
+    return dumps({"postlist": post_list}), 200
 
 
 # 사진, hashtag, text 업로드 -> 완료
 @ app.route('/upload', methods=['POST'])
 def upload_file():
-    # if session_list.get('user_type') == 'guest':
-    #     return jsonify({'message': 'Access denied'}), 403
+
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
 
     if 'file' not in request.files:
         return jsonify({'message': '파일이 올바르지 않습니다.'}), 400
@@ -190,34 +181,20 @@ def upload_file():
         return jsonify({'message': '게시글이 작성되었습니다!',
                         "redirect_url": "http://localhost:3000/main"}), 200
 
-    # if len(keywords) >= 10:
-    #     return jsonify({'message': 'Keyword must be less than 10 characters'}), 400
-
-    # else:
-    #     return jsonify({'message': 'Allowed file types are png, jpg, jpeg, gif'}), 400
-
-
-# 내가 업로드한 사진 조회 -> x
-@ app.route('/my_posts/<username>', methods=['GET'])
-def get_my_posts(username):
-    # if session_list.get('user_type') == 'guest':
-    #     return jsonify({'message': 'Access denied'}), 403
-    my_posts = posts.find({'username': username}, {'_id': 0})
-    return jsonify(list(my_posts)), 200
-
 
 # 수정 페이지로 이동 -> 완료
 @app.route('/gotofixpage', methods=['POST'])
 def go_to_fixpage():
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
+
     data = request.get_json()  # 요청 본문에서 JSON 데이터 추출
     username = data.get('username')
     filename = data.get('filename')
 
     if not filename:
         return jsonify({'error': 'Missing file parameter'}), 400
-
-    # # MongoDB에서 'file' 값이 일치하는 문서 찾기
-    # document = posts.find_one({'file': filename})
 
         # 문서에서 'username' 반환
     if session_list['username'] != username:
@@ -245,6 +222,10 @@ def get_my_post_id():
 # 내가 업로드한 사진 수정 -> 완료
 @ app.route('/fix', methods=['POST'])
 def update_my_post():
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
+
     if 'file' not in request.files:
         return jsonify({'message': '파일이 올바르지 않습니다.'}), 400
 
@@ -287,6 +268,10 @@ def update_my_post():
 # keyword 페이지로 이동 -> 완료
 @app.route('/gotokeywordpage', methods=['POST'])
 def go_to_keywordpage():
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
+
     data = request.get_json()  # 요청 본문에서 JSON 데이터 추출
     keyword = data.get('keyword')
 
@@ -302,14 +287,11 @@ def go_to_keywordpage():
 # 키워드 검색 -> 완료
 @app.route('/search', methods=['POST'])
 def search_posts():
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
     data = request.get_json()  # 요청의 JSON 바디에서 데이터 추출
     keyword = data.get('keyword', '')  # 'keyword' 값 추출, 없으면 빈 문자열 반환
-
-    # 주석 처리된 권한 확인 로직
-    # if session_list.get('user_type') == 'guest':
-    #     return jsonify({'message': 'Access denied'}), 403
-    # if len(keyword) >= 10:
-    #     return jsonify({'message': 'Keyword must be less than 10 characters'}), 400
 
     # 해시태그 배열에서 키워드를 검색합니다.
     matching_posts = posts.find({'hashtags': {"$in": [keyword]}}, {'_id': 0})
@@ -325,6 +307,10 @@ def search_posts():
 # DM 페이지로 이동 -> 완료
 @app.route('/gotoDMpage', methods=['POST'])
 def go_to_DMpage():
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
+
     data = request.get_json()  # 요청 본문에서 JSON 데이터 추출
     sender = session_list['username']
     receiver = data.get('username')
@@ -342,8 +328,10 @@ def go_to_DMpage():
 # dm 전송 -> 완료
 @ app.route('/sendDM', methods=['POST'])
 def send_dm():
-    # if session_list.get('user_type') == 'guest':
-    #     return jsonify({'message': 'Access denied'}), 403
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
+
     data = request.get_json()  # 요청 본문에서 JSON 데이터 추출
 
     sender = data.get('sender')
@@ -358,8 +346,9 @@ def send_dm():
 # dm 조회 -> 완료
 @ app.route('/dm', methods=['GET'])
 def get_dms():
-    # if session_list.get('user_type') == 'guest':
-    #     return jsonify({'message': 'Access denied'}), 403
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
 
     username = session_list['username']
 
@@ -371,6 +360,9 @@ def get_dms():
 # dm 삭제 -> 완료
 @ app.route('/delete_dm', methods=['POST'])
 def delete_dm():
+    if 'username' not in session_list:
+        return jsonify({"message": "비정상적인 접근입니다. 회원가입 및 게스트 로그인을 사용하세요.",
+                        "redirect_url": "http://localhost:3000"})
     # if session_list.get('user_type') == 'guest':
     #     return jsonify({'message': 'Access denied'}), 403
     data = request.get_json()  # 요청 본문에서 JSON 데이터 추출

@@ -221,7 +221,8 @@
 .main-board-picture {
   margin-top: 5px;
   width: 476px;
-  height: 318px;
+  height: auto;
+  max-height: 800px;
   border: 1px solid black;
 }
 
